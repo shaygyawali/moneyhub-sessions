@@ -21,6 +21,7 @@ export default function HorizontalLinearStepper() {
   const [topics, setTopics] = React.useState([]);
   const [selectedTopic, setSelectedTopic] = React.useState('');
   const [sessionData, setSessionData] = React.useState(null);
+  const [insights, setInsights] = React.useState([])
 
   React.useEffect(() => {
     const fetchTopics = async () => {
@@ -51,6 +52,23 @@ export default function HorizontalLinearStepper() {
         console.error("Error creating session: ", error);
       }
     }
+
+    if (activeStep === 1 && sessionData) {
+      // On the last step, send session and topic data to the /complete endpoint
+      try {
+        console.log("Sending data to complete the quiz", sessionData, selectedTopic);
+        const response = await axios.post(`/api/quiz/${sessionData.session_id}/complete`, {
+          session: sessionData,
+          topic_id: selectedTopic
+        });
+  
+        console.log("Insights received: ", response.data.insights);
+        setInsights(response.data.insights)
+        // You can store the received insights in state or do something with them
+      } catch (error) {
+        console.error("Error fetching insights: ", error);
+      }
+    }
   
     // Proceed to the next step
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -72,99 +90,108 @@ export default function HorizontalLinearStepper() {
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Stepper activeStep={activeStep}>
-        {steps.map((label, index) => {
-          const stepProps = {};
-          const labelProps = {};
-          return (
-            <Step key={label} {...stepProps}>
-              <StepLabel {...labelProps}>{label}</StepLabel>
-            </Step>
-          );
-        })}
-      </Stepper>
+    <div className={styles.main}>
+      <Box sx={{height: '70%', width: '85%', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
+        <Stepper activeStep={activeStep}>
+          {steps.map((label, index) => {
+            const stepProps = {};
+            const labelProps = {};
+            return (
+              <Step key={label} {...stepProps}>
+                <StepLabel {...labelProps}>{label}</StepLabel>
+              </Step>
+            );
+          })}
+        </Stepper>
 
-      {activeStep === steps.length ? (
-        <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>
-            All steps completed - you&apos;re finished
-          </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-            <Box sx={{ flex: '1 1 auto' }} />
-            <Button onClick={handleReset}>Reset</Button>
-          </Box>
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          <Box sx={{ mt: 2, mb: 1 }}>
-            {activeStep === 0 && (
-              <div>
-                <Typography>Select a Topic</Typography>
-                <Grid container spacing={4} className={styles.mainGrid}>
-                  {topics.map((topic) => (
-                    <Grid key={topic._id} item xs={12} sm={6} md={6} lg={6}>
-                      <div
-                        className={`${styles.topicCard} ${selectedTopic === topic.topic_id ? styles.selected : ''}`}
-                        onClick={() => handleTopicClick(topic.topic_id)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <h2>{topic.name}</h2>
-                        <p>{topic.sub_topics.join(', ')}</p>
-                        <div className={styles.arrow}>→</div>
+        {activeStep === steps.length ? (
+          <React.Fragment>
+            <Typography sx={{ mt: 2, mb: 1 }}>
+              All steps completed - you&apos;re finished
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+              <Box sx={{ flex: '1 1 auto' }} />
+              <Button onClick={handleReset}>Reset</Button>
+            </Box>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <Box>
+              
+              {activeStep === 0 && (
+                <div className={styles.mainHolder}>
+                  <Grid container spacing={4} className={styles.mainGrid}>
+                    {topics.map((topic) => (
+                      <Grid key={topic._id} item xs={12} sm={6} md={6} lg={6}>
+                        <div
+                          className={`${styles.topicCard} ${selectedTopic === topic.topic_id ? styles.selected : ''}`}
+                          onClick={() => handleTopicClick(topic.topic_id)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <h2>{topic.name}</h2>
+                          <p>{topic.sub_topics.join(', ')}</p>
+                          <div className={styles.arrow}>→</div>
+                        </div>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </div>
+              )}
+
+              {activeStep === 1 && (
+                <div className={styles.mainHolder}>
+                  {sessionData && (
+                    <div className={styles.sessionContainer}>
+                      <h2>Session Created</h2>
+                      <div className={styles.qrWrapper}>
+                        <img src={sessionData.session_qr} alt="Session QR Code" className={styles.qrImage} />
+                        <QrCodeScannerIcon className={styles.qrIcon} fontSize="large" />
                       </div>
-                    </Grid>
-                  ))}
-                </Grid>
-              </div>
-            )}
-
-            {activeStep === 1 && (
-              <div className={styles.mainHolder}>
-                {sessionData && (
-                  <div className={styles.sessionContainer}>
-                    <h2>Session Created</h2>
-                    <div className={styles.qrWrapper}>
-                      <img src={sessionData.session_qr} alt="Session QR Code" className={styles.qrImage} />
-                      <QrCodeScannerIcon className={styles.qrIcon} fontSize="large" />
+                      <div className={styles.urlHolder}>
+                        <SearchIcon className={styles.searchIcon} />
+                        <p className={styles.sessionLink}><a href={sessionData.session_url}>{sessionData.session_url}</a></p>
+                      </div>
                     </div>
-                    <div className={styles.urlHolder}>
-                      <SearchIcon className={styles.searchIcon} />
-                      <p className={styles.sessionLink}><a href={sessionData.session_url}>{sessionData.session_url}</a></p>
+                  )}
+                </div>
+              )}
+
+              {activeStep === 2 && (
+                <div className={styles.mainHolder}>
+                
+                    <div className={styles.insightsHolder}>
+                    {insights.map((insight) => (
+                      <div className={styles.insight}>
+                          <h3>{insight.quantitative}</h3>
+                          <p>{insight.qualitative}</p>
+                        </div>
+                    ))}
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </Box>
 
-            {activeStep === 2 && (
-              <div>
-                <Typography>Results</Typography>
-                <Typography>Results will be shown here (placeholder for now).</Typography>
-              </div>
-            )}
-          </Box>
-
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-            <Button
-              color="inherit"
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              sx={{ mr: 1 }}
-            >
-              Back
-            </Button>
-            <Box sx={{ flex: '1 1 auto' }} />
-            <Button
-              onClick={handleNext}
-              disabled={activeStep === 0 && !selectedTopic}
-            >
-              {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-            </Button>
-          </Box>
-        </React.Fragment>
-      )}
-    </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+              <Button
+                color="inherit"
+                disabled={activeStep === 0}
+                onClick={handleBack}
+                sx={{ mr: 1 }}
+              >
+                Back
+              </Button>
+              <Box sx={{ flex: '1 1 auto' }} />
+              <Button
+                onClick={handleNext}
+                disabled={activeStep === 0 && !selectedTopic}
+              >
+                {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+              </Button>
+            </Box>
+          </React.Fragment>
+        )}
+      </Box>
+    </div>
   );
 }
 

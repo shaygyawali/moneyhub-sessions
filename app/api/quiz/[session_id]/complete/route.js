@@ -1,24 +1,37 @@
-import dbConnect from '../../../../lib/mongodb';
+import dbConnect from '../../../../../lib/mongodb';
 import Session from '../../../../models/Session';
-import axios from 'axios';
+import Topic from '../../../../models/Topic';
 
 export async function POST(req, { params }) {
   await dbConnect();
 
   const { session_id } = params;
+  const { session, topic_id } = await req.json();
 
-  const session = await Session.findOne({ session_id });
-  if (!session) {
+  const existingSession = await Session.findOne({ session_id });
+  if (!existingSession) {
     return new Response(JSON.stringify({ message: 'Session not found' }), { status: 404 });
   }
 
-  const response = await axios.post('https://python-api-url/process', session);
+  const topic = await Topic.findOne({ topic_id });
+  if (!topic) {
+    return new Response(JSON.stringify({ message: 'Topic not found' }), { status: 404 });
+  }
 
-  session.students.forEach((student, index) => {
-    student.target_sub_topics = ["Visualizing Goals, Setting SMART Goals"]
-   // student.target_sub_topics = response.data.students[index].target_sub_topics;
-  });
+  // Dummy function to generate hardcoded insights
+  function generateInsights() {
+    return [
+      { quantitative: "36%", qualitative: "Increase of understanding" },
+      { quantitative: "100%", qualitative: "Students understand SMART goals" },
+      { quantitative: "85%", qualitative: "Improvement in financial literacy concepts" }
+    ];
+  }
 
-  await session.save();
-  return new Response(JSON.stringify({ message: 'Session processed', session }), { status: 200 });
+  const insights = generateInsights();
+
+  // Save the insights to the session object
+  existingSession.insights = insights;
+  await existingSession.save();
+
+  return new Response(JSON.stringify({ message: 'Insights generated', insights }), { status: 200 });
 }

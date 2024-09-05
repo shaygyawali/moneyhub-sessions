@@ -23,11 +23,17 @@ const StudentSchema = new mongoose.Schema({
   },
 });
 
+const InsightsSchema = new mongoose.Schema({
+  quantitative: {type: String, required: false},
+  qualitative: {type: String, required: false}
+})
+
 // Main schema for the session
 const SessionSchema = new mongoose.Schema({
   session_id: { type: String, required: true, unique: true },
   session_url: { type: String, required: true },             
-  session_qr: { type: String, required: true },               
+  session_qr: { type: String, required: true },
+  insights: {type: [InsightsSchema], required: false},              
   topic_id: { type: String, required: true },                 
   students: { type: [StudentSchema], default: [] },           
   created_at: { type: Date, default: Date.now },             
