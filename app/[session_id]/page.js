@@ -1,13 +1,18 @@
 'use client';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Button, Box, Typography, Pagination } from '@mui/material';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import styles from './page.module.css';  // Import your CSS module
 
 export default function QuizPage({ params }) {
   const [quiz, setQuiz] = useState([]);
-  const [answers, setAnswers] = useState([]);
+  const [answers, setAnswers] = useState({});
   const [quizType, setQuizType] = useState('pre');
   const [studentName, setStudentName] = useState('');
   const [studentId, setStudentId] = useState('');  // State to store student ID
+  const [currentQuestion, setCurrentQuestion] = useState(0);  // Current question index (0 for name)
+  const [submitted, setSubmitted] = useState(false);  // Track if the post-quiz is submitted
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -18,22 +23,10 @@ export default function QuizPage({ params }) {
   }, [params.session_id, quizType]);
 
   const handleAnswerChange = (question_id, selected_option_id) => {
-    setAnswers((prevAnswers) => {
-      const existingAnswerIndex = prevAnswers.findIndex(
-        (answer) => answer.question_id === question_id
-      );
-      const updatedAnswers = [...prevAnswers];
-
-      if (existingAnswerIndex !== -1) {
-        // Update the existing answer
-        updatedAnswers[existingAnswerIndex] = { question_id, selected_option_id };
-      } else {
-        // Add new answer
-        updatedAnswers.push({ question_id, selected_option_id });
-      }
-
-      return updatedAnswers;
-    });
+    setAnswers((prevAnswers) => ({
+      ...prevAnswers,
+      [question_id]: selected_option_id,
+    }));
   };
 
   const submitQuiz = async () => {
@@ -44,7 +37,10 @@ export default function QuizPage({ params }) {
 
     const payload = {
       studentName,
-      answers,
+      answers: Object.entries(answers).map(([question_id, selected_option_id]) => ({
+        question_id,
+        selected_option_id,
+      })),
       quizType,
       student_id: studentId,  // Include the student ID for post-quiz
     };
@@ -52,60 +48,110 @@ export default function QuizPage({ params }) {
     const response = await axios.post(`/api/quiz/${params.session_id}`, payload);
 
     if (quizType === 'pre') {
-      // Store the student ID returned from the server after pre-quiz
-      setStudentId(response.data.student_id);
+      setStudentId(response.data.student_id);  // Store the student ID
       setQuizType('post');  // Move to post-quiz after submission
+      setCurrentQuestion(0);  // Reset to the first step for post-quiz
+    } else {
+      setSubmitted(true);  // Mark the post-quiz as submitted
     }
   };
 
-  return (
-    <div>
-      <h1>{quizType === 'pre' ? 'Pre-Quiz' : 'Post-Quiz'}</h1>
+  const handlePageChange = (value) => {
+    setCurrentQuestion(value - 1);  // Update the current question index
+  };
 
-      {/* Name input only for pre-quiz */}
-      {quizType === 'pre' && (
-        <div>
+  if (quiz.length === 0 && quizType === 'pre' && !submitted) return <Typography>Loading...</Typography>;
+
+  // After submission, display a check mark
+  if (submitted) {
+    return (
+      <div className={styles.centeredPage}>
+        <CheckCircleOutlineIcon style={{ fontSize: '100px', color: 'lightblue' }} />
+        <Typography variant="h4" className={styles.centeredText}>
+          Quiz Submitted!
+        </Typography>
+      </div>
+    );
+  }
+
+  const isNameStep = currentQuestion === 0;
+  const isLastStep = currentQuestion === quiz.length;
+  const isAnswerSelected = currentQuestion === 0 ? studentName.trim() !== '' : answers[quiz[currentQuestion - 1]?.question_id];
+
+  return (
+    <div className={styles.centeredPage}>
+      <Typography variant="h4" className={styles.title}>
+        {quizType === 'pre' ? 'Pre-Quiz' : 'Post-Quiz'}
+      </Typography>
+
+      {/* Name input for pre-quiz as the first step */}
+      {isNameStep && quizType === 'pre' && (
+        <Box mb={3} className={styles.centeredBox}>
           <label>
-            Your Name:
+            <Typography variant="h6">Your Name:</Typography>
             <input
               type="text"
               value={studentName}
               onChange={(e) => setStudentName(e.target.value)}
               placeholder="Enter your name"
+              className={styles.input}  // Styled input
             />
           </label>
-        </div>
+        </Box>
       )}
 
-      {/* Quiz questions */}
-      {quiz.map((q) => (
-        <div key={q.question_id}>
-          <p>{q.text}</p>
-          {q.options.map((option) => (
-            <div key={option.option_id}>
-              <label>
-                <input
-                  type="radio"
-                  name={q.question_id}
-                  value={option.option_id}
-                  onChange={(e) =>
-                    handleAnswerChange(q.question_id, e.target.value)
-                  }
-                />
+      {/* Display student's name in post-quiz */}
+      {isNameStep && quizType === 'post' && (
+        <Typography variant="h6" mb={3} className={styles.centeredText}>
+          {studentName}
+        </Typography>
+      )}
+
+      {/* Quiz question (steps 2-5) */}
+      {!isNameStep && (
+        <Box mb={3} className={styles.centeredBox}>
+          <Typography variant="h5" gutterBottom className={styles.centeredText}>
+            {quiz[currentQuestion - 1]?.text}
+          </Typography>
+
+          <div className={styles.buttonGrid}>
+            {quiz[currentQuestion - 1]?.options.map((option) => (
+              <Button
+                key={option.option_id}
+                variant="contained"
+                onClick={() => handleAnswerChange(quiz[currentQuestion - 1]?.question_id, option.option_id)}
+                className={`${styles.quizButton} ${
+                  answers[quiz[currentQuestion - 1]?.question_id] === option.option_id ? styles.selectedButton : ''
+                }`}
+                style={{ textTransform: 'none' }}  
+              >
                 {option.text}
-              </label>
-            </div>
-          ))}
-        </div>
-      ))}
+              </Button>
+            ))}
+          </div>
+        </Box>
+      )}
 
-      <button onClick={submitQuiz}>
-        Submit {quizType === 'pre' ? 'Pre-Quiz' : 'Post-Quiz'}
-      </button>
+      {/* Pagination to navigate between steps (including name input) */}
+      <Pagination
+        count={quiz.length + 1}  // 1 additional step for name input
+        page={currentQuestion + 1}
+        onChange={(event, value) => handlePageChange(value)}
+        color="primary"
+        style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}
+        disabled={!isAnswerSelected}  // Disable pagination until name/answer is provided
+      />
 
-      {/* Button to move to post-quiz (in case the user doesn't auto-transition) */}
-      {quizType === 'pre' && (
-        <button onClick={() => setQuizType('post')}>Proceed to Post-Quiz</button>
+      {/* Submit Button on the last step */}
+      {isLastStep && (
+        <Button
+          onClick={submitQuiz}
+          variant="contained"
+          className={styles.submitButton}
+          disabled={!isAnswerSelected}  // Disable submit until answer is provided
+        >
+          Submit {quizType === 'pre' ? 'Pre-Quiz' : 'Post-Quiz'}
+        </Button>
       )}
     </div>
   );
