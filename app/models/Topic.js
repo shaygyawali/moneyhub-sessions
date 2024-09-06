@@ -17,7 +17,8 @@ const TopicSchema = new mongoose.Schema({
   name: { type: String, required: true },  // Topic name is required
   sub_topics: { type: [String], required: true },  // Subtopics are required
   quiz: { type: [QuestionSchema], required: false },  // Quiz questions can be optional
-  topic_id: { type: String, required: true, unique: true }  // Unique topic ID
+  topic_id: { type: String, required: true, unique: true }, // Unique topic ID
+  icon_url: {type: String, required: false}
 });
 
 

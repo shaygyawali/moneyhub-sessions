@@ -93,6 +93,9 @@ body {
 body {
   color: rgb(var(--foreground-rgb));
   background: white;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 a {

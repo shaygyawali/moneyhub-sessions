@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Button, Box, Typography, Pagination } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import styles from './page.module.css';  // Import your CSS module
+import Image from 'next/image'
+
 
 export default function QuizPage({ params }) {
   const [quiz, setQuiz] = useState([]);
@@ -13,11 +15,16 @@ export default function QuizPage({ params }) {
   const [studentId, setStudentId] = useState('');  // State to store student ID
   const [currentQuestion, setCurrentQuestion] = useState(0);  // Current question index (0 for name)
   const [submitted, setSubmitted] = useState(false);  // Track if the post-quiz is submitted
+  const [topicName, setTopicName] = useState('');
+  const [iconUrl, setIconUrl] = useState('');
+
 
   useEffect(() => {
     const fetchQuiz = async () => {
       const response = await axios.get(`/api/quiz/${params.session_id}?quizType=${quizType}`);
       setQuiz(response.data.quiz);
+      setTopicName(response.data.topic_info.name)
+      setIconUrl(response.data.topic_info.icon)
     };
     fetchQuiz();
   }, [params.session_id, quizType]);
@@ -80,15 +87,21 @@ export default function QuizPage({ params }) {
 
   return (
     <div className={styles.centeredPage}>
-      <Typography variant="h4" className={styles.title}>
+      <Image
+    src={iconUrl}
+    width={50}
+    height={0} // Set height to 0 for now
+    style={{ height: 'auto' }} 
+      ></Image>
+      <h1 className={styles.topicHeader}>{topicName}</h1>
+      <p className={styles.title}>
         {quizType === 'pre' ? 'Pre-Quiz' : 'Post-Quiz'}
-      </Typography>
+      </p>
 
       {/* Name input for pre-quiz as the first step */}
       {isNameStep && quizType === 'pre' && (
         <Box mb={3} className={styles.centeredBox}>
           <label>
-            <Typography variant="h6">Your Name:</Typography>
             <input
               type="text"
               value={studentName}
@@ -110,7 +123,7 @@ export default function QuizPage({ params }) {
       {/* Quiz question (steps 2-5) */}
       {!isNameStep && (
         <Box mb={3} className={styles.centeredBox}>
-          <Typography variant="h5" gutterBottom className={styles.centeredText}>
+          <Typography className={styles.topicHeader} variant="h5" gutterBottom className={styles.centeredText}>
             {quiz[currentQuestion - 1]?.text}
           </Typography>
 
@@ -124,6 +137,7 @@ export default function QuizPage({ params }) {
                   answers[quiz[currentQuestion - 1]?.question_id] === option.option_id ? styles.selectedButton : ''
                 }`}
                 style={{ textTransform: 'none' }}  
+                disableElevation={true}
               >
                 {option.text}
               </Button>

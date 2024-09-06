@@ -1,5 +1,5 @@
 .main{
-  width: 100vw;
+  width: 80vw;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,43 +15,45 @@
   max-width: 1200px; /* Add a max-width to prevent it from stretching too far */
   margin: 0 auto; /* Center it horizontally */
   margin-top: 50px;
+
 }
 
 .topicCard {
   position: relative;
   background-color: white;
-  border: 1px solid rgba(0, 0, 0, 0.03); /* Subtle border */
+  border: 1px solid rgba(0, 0, 0, 0.1); /* Subtle border */
   border-radius: 8px;
-  padding: 1rem;
-  min-height: 220px;
+  padding: 15px;
+  min-height: 200px;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
   transition: background-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
   box-sizing: border-box;
   color: black; /* Text color default to black */
 }
 
 .topicCard:hover {
-  background-color: #f0f0f0; /* Light grey on hover */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Slightly larger shadow on hover */
+  background-color: #eff5ff; /* Light grey on hover */
   color: black; /* Ensure text stays black on hover */
 }
 
 .selected {
-  background-color: black; /* Black background when selected */
-  color: white; /* White text when selected */
+  background-color: #eff5ff; /* Light grey on hover */
+  color:  #0080BA; /* White text when selected */
+  border: 1px solid #0080BA; /* Subtle border */
+
 }
 
 .selected:hover {
-  background-color: black; /* Keep background black on hover when selected */
   color: white; /* Keep text white when selected and hovered */
 }
 
 .selected h2,
 .selected p {
-  color: white; /* Ensure text stays white in the selected state */
+  color: black; /* Ensure text stays white in the selected state */
 }
 
 .arrow {
@@ -69,16 +71,16 @@
 }
 
 .mainGrid {
-  width: 80vw;
-  margin: 0 auto; /* Center horizontally */
+  width: 100%;
+
 }
 
 
 .sessionContainer {
-  background-color: #bfe2eb;
-  border-radius: 12px;
+  background-color: #eff5ff; /* Light grey on hover */
+  color:  #0080BA; /* White text when selected */
+  border: 1px solid #0080BA; /* Subtle border */  border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
   width: 100%; /* Full width of the container */
   max-width: 600px; /* Limits the width on large screens */
   height: 70vh;
@@ -123,7 +125,6 @@
   justify-content: flex-start;
   padding: 0 1rem;
   border-radius: 25px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
   margin-top: 1rem;
 }
 
@@ -133,7 +134,7 @@
 }
 
 .sessionLink {
-  color: #007bff; /* Link color */
+  color: black; /* Link color */
   text-decoration: none;
   word-wrap: break-word; /* Ensures text wraps if it's too long */
   flex: 1;
@@ -146,6 +147,7 @@
 
 .sessionLink:hover {
   text-decoration: underline;
+  color: black;
 }
 
 .insightsHolder{
@@ -162,13 +164,22 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-
   color: white;
   background-color: black;
   flex: 1; /* Optional: ensures each insight takes up equal space */
   margin: 0 10px; /* Adds space between insights */
   border-radius: 10px;
   padding: 20px;
+}
+
+.subTopics{ 
+  color: gray;
+  font-weight: lighter;
+}
+
+.topicHeader{
+  font-weight: normal;
+  margin-top: 20px;
 }
 
 @media (max-width: 700px) {

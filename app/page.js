@@ -9,9 +9,14 @@ import Typography from '@mui/material/Typography';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import SearchIcon from '@mui/icons-material/Search';
 
+
 import Grid from '@mui/material/Grid';
 import axios from 'axios';
 import styles from './page.module.css'; // Import your CSS module
+import Image from 'next/image'
+
+
+
 
 const steps = ['Select Topic', 'Create Session', 'Results'];
 
@@ -19,7 +24,7 @@ export default function HorizontalLinearStepper() {
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
   const [topics, setTopics] = React.useState([]);
-  const [selectedTopic, setSelectedTopic] = React.useState('');
+  const [selectedTopic, setSelectedTopic] = React.useState('4');
   const [sessionData, setSessionData] = React.useState(null);
   const [insights, setInsights] = React.useState([])
 
@@ -91,14 +96,14 @@ export default function HorizontalLinearStepper() {
 
   return (
     <div className={styles.main}>
-      <Box sx={{height: '70%', width: '85%', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
-        <Stepper activeStep={activeStep}>
+      <Box sx={{height: '70%', width: '85%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+        <Stepper activeStep={activeStep} sx={{width: '50%'}} alternativeLabel>
           {steps.map((label, index) => {
             const stepProps = {};
             const labelProps = {};
             return (
               <Step key={label} {...stepProps}>
-                <StepLabel {...labelProps}>{label}</StepLabel>
+                <StepLabel {...labelProps} >{label}</StepLabel>
               </Step>
             );
           })}
@@ -128,9 +133,14 @@ export default function HorizontalLinearStepper() {
                           onClick={() => handleTopicClick(topic.topic_id)}
                           style={{ cursor: 'pointer' }}
                         >
-                          <h2>{topic.name}</h2>
-                          <p>{topic.sub_topics.join(', ')}</p>
-                          <div className={styles.arrow}>→</div>
+                        <Image
+                            src={topic.icon_url}
+                            width={50}
+                            height={0} // Set height to 0 for now
+                            style={{ height: 'auto' }} 
+                          />
+                          <h2 className={styles.topicHeader}>{topic.name}</h2>
+                          <p className={styles.subTopics}>{topic.sub_topics.join(' | ')}</p>
                         </div>
                       </Grid>
                     ))}
@@ -142,10 +152,9 @@ export default function HorizontalLinearStepper() {
                 <div className={styles.mainHolder}>
                   {sessionData && (
                     <div className={styles.sessionContainer}>
-                      <h2>Session Created</h2>
+                      <h2 className={styles.topicHeader}> Please Join! </h2>
                       <div className={styles.qrWrapper}>
                         <img src={sessionData.session_qr} alt="Session QR Code" className={styles.qrImage} />
-                        <QrCodeScannerIcon className={styles.qrIcon} fontSize="large" />
                       </div>
                       <div className={styles.urlHolder}>
                         <SearchIcon className={styles.searchIcon} />
@@ -171,7 +180,7 @@ export default function HorizontalLinearStepper() {
               )}
             </Box>
 
-            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, borderWidth: '10px', borderColor: 'pink' }}>
               <Button
                 color="inherit"
                 disabled={activeStep === 0}
@@ -194,4 +203,3 @@ export default function HorizontalLinearStepper() {
     </div>
   );
 }
-

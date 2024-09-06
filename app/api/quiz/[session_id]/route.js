@@ -17,11 +17,15 @@ export async function GET(req, { params }) {
 
 
   const topic = await Topic.findOne({ topic_id: session.topic_id });
+  const topicInfo = {
+    name: topic.name,
+    icon_url: topic.icon_url
+  }
   if (!topic) {
     return new Response(JSON.stringify({ message: 'Topic not found' }), { status: 404 });
   }
 
-  return new Response(JSON.stringify({ quiz: topic.quiz }), { status: 200 });
+  return new Response(JSON.stringify({ quiz: topic.quiz, topic_info: {name: topic.name, icon: topic.icon_url} }), { status: 200 });
 }
 
 export async function POST(req, { params }) {

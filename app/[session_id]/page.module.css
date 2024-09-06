@@ -35,25 +35,26 @@
   .quizButton {
     background-color: white;
     color: black;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid lightgray;
     border-radius: 8px;
     text-align: center;
     padding: 12px;
     font-size: 16px;
-    transition: background-color 0.3s ease, color 0.3s ease;
     width: 100%;
   }
   
   /* Style for the hovered quiz buttons */
   .quizButton:hover {
-    background-color: lightgray;
+    background-color: #eff5ff;
   }
   
   /* Style for the selected quiz buttons */
   .selectedButton {
-    background-color: lightblue;
-    color: white;
-  }
+    background-color: #eff5ff;
+    border: 1px solid #0080BA; /* Subtle border */
+    color: #0080BA; /* Subtle border */
+
+}
   
   /* Submit button styling */
   .submitButton {
@@ -74,17 +75,26 @@
     font-size: 16px;
     width: 100%;
     border-radius: 8px; /* Rounded edges */
-    background-color: rgb(236, 236, 236); /* Light gray background */
-    border: 0.5px solid lightgray;
+    border: 1px solid rgb(208, 208, 208);
     color: black; /* Dark gray text */
-    border: none; /* No border */
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); /* Same shadow as buttons */
     margin-top: 10px;
   }
   
   .input:focus {
     outline: none; /* Remove focus outline */
     background-color: lightgray; /* Ensure consistent background */
+  }
+
+  .topicHeader {
+    font-weight: lighter;
+    margin-top: 20px;
+  }
+
+  .title{
+    font-weight: lighter;
+    font-size: medium;
+    color: gray;
+    margin-bottom: 20px;
   }
   
   /* Responsive design for smaller screens */
