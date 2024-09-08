@@ -41,7 +41,7 @@ export default function QuizPage({ params }) {
       alert('Please enter your name');
       return;
     }
-
+  
     const payload = {
       studentName,
       answers: Object.entries(answers).map(([question_id, selected_option_id]) => ({
@@ -51,17 +51,25 @@ export default function QuizPage({ params }) {
       quizType,
       student_id: studentId,  // Include the student ID for post-quiz
     };
-
-    const response = await axios.post(`/api/quiz/${params.session_id}`, payload);
-
-    if (quizType === 'pre') {
-      setStudentId(response.data.student_id);  // Store the student ID
-      setQuizType('post');  // Move to post-quiz after submission
-      setCurrentQuestion(0);  // Reset to the first step for post-quiz
-    } else {
-      setSubmitted(true);  // Mark the post-quiz as submitted
+  
+    console.log("Submitting quiz with payload:", payload);
+  
+    try {
+      const response = await axios.post(`/api/quiz/${params.session_id}`, payload);
+      console.log("Response from server:", response.data);
+  
+      if (quizType === 'pre') {
+        setStudentId(response.data.student_id);  // Store the student ID
+        setQuizType('post');  // Move to post-quiz after submission
+        setCurrentQuestion(0);  // Reset to the first step for post-quiz
+      } else {
+        setSubmitted(true);  // Mark the post-quiz as submitted
+      }
+    } catch (error) {
+      console.error("Error submitting quiz:", error);
     }
   };
+  
 
   const handlePageChange = (value) => {
     setCurrentQuestion(value - 1);  // Update the current question index
