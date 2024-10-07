@@ -97,7 +97,7 @@ export default function HorizontalLinearStepper() {
   return (
     <div className={styles.main}>
       <Box sx={{height: '70%', width: '85%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-        <Stepper activeStep={activeStep} sx={{width: '50%'}} alternativeLabel>
+        <Stepper activeStep={activeStep} sx={{width: '100%', maxWidth: '600px'}} alternativeLabel>
           {steps.map((label, index) => {
             const stepProps = {};
             const labelProps = {};
@@ -169,8 +169,8 @@ export default function HorizontalLinearStepper() {
                 <div className={styles.mainHolder}>
                 
                     <div className={styles.insightsHolder}>
-                    {insights.map((insight) => (
-                      <div className={styles.insight}>
+                    {insights.map((insight, index) => (
+                      <div className={styles.insight} key={index}>
                           <h3>{insight.quantitative}</h3>
                           <p>{insight.qualitative}</p>
                         </div>

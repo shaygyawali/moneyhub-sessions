@@ -131,7 +131,7 @@ export default function QuizPage({ params }) {
       {/* Quiz question (steps 2-5) */}
       {!isNameStep && (
         <Box mb={3} className={styles.centeredBox}>
-          <Typography className={styles.topicHeader} variant="h5" gutterBottom className={styles.centeredText}>
+          <Typography className={styles.topicHeader} variant="h5" gutterBottom>
             {quiz[currentQuestion - 1]?.text}
           </Typography>
 
